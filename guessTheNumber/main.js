@@ -52,6 +52,9 @@ function checkInput(number){
     {
         alert("Plus.");
     }else{
+        //Message de felicitation, remise à zero du compteur d'essai et relance un nouveau nombre aléatoir.
         alert(`Bravo ${number} est bien le nombre secret.`);
+        tryCounter = o;
+        secretNumber = randomNumberDispenser();
     }
 }
