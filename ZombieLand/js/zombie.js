@@ -16,7 +16,6 @@ var zombieImg = document.getElementById("zombieImg");
 window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
                               window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
 var start = null;
-var timestamp = Date.now();
 //Fonction qui anime l'image en la déplaçant en fonction du timestamp.
 function step(timestamp) {
   var progress;
@@ -25,6 +24,8 @@ function step(timestamp) {
   zombieImg.style.right = Math.min(100 * Math.ceil(progress/75), 1000) + "px";
   if (progress < 10000) {
     requestAnimationFrame(step);
+  }else{
+      cancelAnimationFrame(requestAnimationFrame(step));
   }
 }
 requestAnimationFrame(step);
@@ -45,14 +46,14 @@ addEventListener('keydown',(ev)=>{
             }
             break;
         case "ArrowUp": 
-            if(imgDivPositionY>=0){
+            if(imgDivPositionY>0){
                 console.log();
                 imgDivPositionY -= moveStep;
                 imgDiv.style.top = imgDivPositionY + "px";
                 }
                 break;
         case "ArrowDown": 
-            if(imgDivPositionY>=-25){
+            if(imgDivPositionY>=0){
                 imgDivPositionY += moveStep;
                 imgDiv.style.top = imgDivPositionY + "px";
             }
