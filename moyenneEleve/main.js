@@ -19,8 +19,7 @@ nameBtn.addEventListener('click',()=>{
     //verifie que la saisie correspond à un nom.
     if(pupilName.length >= 1 && pupilName.length <= 47 && isNaN(pupilName) == true){
         showHideInputDiv();
-        showPupilName.textContent += pupilName;
-        
+        showPupilName.textContent += pupilName;     
     }else{
         message.textContent = "Saisie incorrect."
     }  

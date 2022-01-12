@@ -33,9 +33,9 @@ function showCounter(counter){
     counterMessage= document.getElementById('counter');
     console.log(counter);
     if(counter<=1){
-        counterMessage.textContent = `${counter} essaie`;
+        counterMessage.textContent = `${counter} essai`;
     }else if(counter>=2){
-        counterMessage.textContent = `${counter} essaies`;
+        counterMessage.textContent = `${counter} essais`;
     }
     if(counter>=5){
         counterMessage.style.color = 'red';
