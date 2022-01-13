@@ -9,6 +9,8 @@ let phoneNumberInput = document.getElementById('phone-number-input');
 let message = document.getElementById('message');
 let regex = new RegExp('(0|\\+33|0033)[1-9][0-9]{8}');
 let table = document.getElementById('tableBody');
+let stringContact;
+getContactToStorage();
 //Ecoute du click sur le bouton d'ajout d'un contact.
 addContactBtn.addEventListener('click',()=>{
     if(checkFormInput()){
@@ -16,8 +18,9 @@ addContactBtn.addEventListener('click',()=>{
         contact.name = nameInput.value;
         contact.firstname = firstNameInput.value;
         contact.phoneNumber = phoneNumberInput.value;
-        contacts.push(contact);
         console.log(contacts);
+        contacts.push(contact);
+        setContactsToStorage();
     }
 });
 //Verifie la saisie du formulaire d'ajout de contact et affiche un message en fonction du résultat.
@@ -114,3 +117,44 @@ function phoneInputCheck(ev){
 function inputBorderColorChanger(ev , color){
     ev.target.style = `border: 1px solid ${color}`;
 }
+//Stockage de la liste de contact dans le stockage du navigateur.
+function setContactsToStorage(){
+    if(localStorage.getItem("contacts") != null){
+        localStorage.removeItem('contacts');
+    }
+    stringContacts = contactsTabToString();
+    localStorage.setItem("contacts", stringContacts);
+}
+//Récupération de la liste de contact dans le stockage du navigateur.
+function getContactToStorage(){
+    if(localStorage.getItem("contacts") != null){
+        stringContactToObjTable(localStorage.getItem("contacts"));
+    }else{
+        contacts = [];
+    }
+}
+//Transforme le contenu du tableau de contact en une chaîne de caractére.
+function contactsTabToString(){
+    let contactsInString = "";
+    for(let item of contacts){
+        contactsInString += `${item.name} ${item.firstname} ${item.phoneNumber},`;
+    }
+    return contactsInString;
+}
+//Transforme la chîne de caractére de contacts en tableau d'objet de contact.
+function stringContactToObjTable(contactString){
+    contacts = [];
+    contact = new Object();
+    let contactsRows = contactString.split(',');
+    for(let row of contactsRows){
+        let contactTab = row.split(' ');
+        if(contactTab[0]!=""){
+            contact.name = contactTab[0];
+            contact.firstname = contactTab[1];
+            contact.phoneNumber = contactTab[2];
+            contacts.push(contact);
+            contactsToTable();
+        }
+    }
+}
+//localStorage.removeItem('contacts');
