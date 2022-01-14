@@ -4,7 +4,10 @@ let cardBody;
 let cardTitle;
 let cardText;
 let refPriceText;
+let basketContent = document.getElementById('basket-content');
+let basketTotal = document.getElementById('basket-footer');
 let productsDiv = document.getElementById('product-list');
+let amount;
 let productInBasket;
 let basket = [];
 let selectedCategoryTab = [];
@@ -92,7 +95,26 @@ document.addEventListener('click', event =>{
     if(event.target.matches('.addProductBtn')){
         toBasket(findProduct(event.target.id));
     } 
+    if(event.target.matches('.lessBtn')){
+        moreOrLessQuantity('-', event.target.id);
+    }
+    if(event.target.matches('.moreBtn')){
+        moreOrLessQuantity( '+', event.target.id);
+    }
 });
+//incrémente ou décrement la quantité de produit dans le panier.
+function moreOrLessQuantity(operateur, productRef){
+    for(productToModifiy of basket){     
+        if(productToModifiy.product.ref == productRef){
+            if(operateur == '+'){
+                productToModifiy.quantity++;
+            }else if(operateur == '-'){
+                productToModifiy.quantity--;
+            }
+        }
+    }
+    basketMaker();
+}
 //Verifie si un produit est présent dans le panier
 function isInBasket(productToCheck){
     let isIn = false;
@@ -138,9 +160,9 @@ function liBasketMaker(){
         let qtyManagerDiv = createEle('div');
         qtyManagerDiv.className = 'd-flex';
         let priceText = paragraphMaker(`Prix unitaire : ${(productBasket.product.price).toFixed(2)}€`);
-        let totalProductText = paragraphMaker(`Total : ${(productBasket.product.price * productInBasket.quantity).toFixed(2)}€`)
-        let lessQtyBtn = buttonMaker(productBasket.ref, 'btn btn-danger ms-auto me-1', '-');
-        let moreQtyBtn = buttonMaker(productBasket.ref, 'btn btn-success ms-1 me-1', '+');
+        let totalProductText = paragraphMaker(`Total : ${(productBasket.product.price * productBasket.quantity).toFixed(2)}€`)
+        let lessQtyBtn = buttonMaker(productBasket.product.ref, 'btn btn-danger ms-auto me-1 lessBtn', '-');
+        let moreQtyBtn = buttonMaker(productBasket.product.ref, 'btn btn-success ms-1 me-1 moreBtn', '+');
         let quantitytextElement = paragraphMaker(`Qté: ${(productBasket.quantity)}`,'text-end');
         qtyManagerDiv.appendChild(priceText);
         qtyManagerDiv.appendChild(lessQtyBtn);
@@ -155,10 +177,21 @@ function liBasketMaker(){
 }
 //Crée le panier
 function basketMaker(){
+    basketContent.innerHTML = '';
+    basketTotal.innerHTML = '';
     let basketDiv = createEle('div');
     let ulElement = liBasketMaker()
     basketDiv.appendChild(ulElement);
-    document.getElementById('basket-content').appendChild(basketDiv);
+    basketContent.appendChild(basketDiv);
+    basketAmount();
+    basketTotal.appendChild(paragraphMaker(`Total : ${(amount).toFixed(2)}€`));
+}
+//Calcule du montant du panier
+function basketAmount(){
+    amount = 0;
+    for(prod of basket){
+        amount += (prod.product.price * prod.quantity);
+    }
 }
 //Crée une carte de produit.
 function cardMaker(product){
