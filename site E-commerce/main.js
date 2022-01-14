@@ -101,7 +101,24 @@ document.addEventListener('click', event =>{
     if(event.target.matches('.moreBtn')){
         moreOrLessQuantity( '+', event.target.id);
     }
+    if(event.target.matches('.empty-basket')){
+        removeProductFromBasket(event.target.id);
+    }
 });
+//Supprimez un ou tous les produits qui sont dans le panier.
+function removeProductFromBasket(id){
+    if(id != undefined){
+        for(let i = 0; i<basket.length;i++){
+            if(basket[i].product.ref == id){
+                console.log(i);
+                basket.splice(i,1);
+            }
+        }
+    }else{
+        basket = [];
+    }
+    basketMaker();
+}
 //incrémente ou décrement la quantité de produit dans le panier.
 function moreOrLessQuantity(operateur, productRef){
     for(productToModifiy of basket){     
@@ -170,6 +187,7 @@ function liBasketMaker(){
         qtyManagerDiv.appendChild(moreQtyBtn);
         qtyManagerDiv.appendChild(totalProductText);
         liElement.appendChild(textElement);
+        liElement.appendChild(buttonMaker(productBasket.product.ref, "empty-basket btn btn-danger" , "<i class=\"bi bi-trash-fill\"></i>"));
         liElement.appendChild(qtyManagerDiv);
         ulElement.appendChild(liElement);
     }
@@ -181,9 +199,11 @@ function basketMaker(){
     basketTotal.innerHTML = '';
     let basketDiv = createEle('div');
     let ulElement = liBasketMaker()
+    let emptyBasket = buttonMaker("", "empty-basket btn btn-danger" , "<i class=\"bi bi-trash-fill\"></i>")
     basketDiv.appendChild(ulElement);
     basketContent.appendChild(basketDiv);
     basketAmount();
+    basketTotal.appendChild(emptyBasket);
     basketTotal.appendChild(paragraphMaker(`Total : ${(amount).toFixed(2)}€`));
 }
 //Calcule du montant du panier
