@@ -85,18 +85,33 @@ document.addEventListener('click', event =>{
     if(event.target.matches('.Patisseries')){
         selectedCategoryManager('Patisseries');
     }
-    if(event.target.matches('.Panier')){}  
+    if(event.target.matches('.Panier')){
+        document.getElementById('basket-content').innerHTML="";
+        basketMaker();
+    }  
     if(event.target.matches('.addProductBtn')){
         toBasket(findProduct(event.target.id));
     } 
 });
-//Ajout le produit au tableau panier
+//Verifie si un produit est présent dans le panier
+function isInBasket(productToCheck){
+    let isIn = false;
+    for(basketEl of basket){
+        if(basketEl.product.ref == productToCheck.ref){
+            basketEl.quantity++;
+            isIn = true;
+        }
+    }
+    return isIn;
+}
+//Ajout le produit au panier
 function toBasket(product){
-    productInBasket = new Object();
-    productInBasket.product = product;
-    productInBasket.quantity = 1;
-    basket.push(productInBasket);
-    console.log(basket)
+    if(!isInBasket(product)){
+        productInBasket = new Object();
+        productInBasket.product = product;
+        productInBasket.quantity = 1;
+        basket.push(productInBasket);
+    }
 }
 //Trouve un produit dans la liste des produits
 function findProduct(id){
@@ -114,16 +129,44 @@ function selectedCategoryManager(category){
         }
     }
 }
+//Crée la liste de produits dans le panier
+function liBasketMaker(){
+    let ulElement = listMaker('list-group');
+    for(productBasket of basket){
+        let liElement = listRowMaker('list-group-item');
+        let textElement = paragraphMaker(productBasket.product.name,  '');
+        let qtyManagerDiv = createEle('div');
+        qtyManagerDiv.className = 'd-flex';
+        let priceText = paragraphMaker(`Prix unitaire : ${(productBasket.product.price).toFixed(2)}€`);
+        let totalProductText = paragraphMaker(`Total : ${(productBasket.product.price * productInBasket.quantity).toFixed(2)}€`)
+        let lessQtyBtn = buttonMaker(productBasket.ref, 'btn btn-danger ms-auto me-1', '-');
+        let moreQtyBtn = buttonMaker(productBasket.ref, 'btn btn-success ms-1 me-1', '+');
+        let quantitytextElement = paragraphMaker(`Qté: ${(productBasket.quantity)}`,'text-end');
+        qtyManagerDiv.appendChild(priceText);
+        qtyManagerDiv.appendChild(lessQtyBtn);
+        qtyManagerDiv.appendChild(quantitytextElement);
+        qtyManagerDiv.appendChild(moreQtyBtn);
+        qtyManagerDiv.appendChild(totalProductText);
+        liElement.appendChild(textElement);
+        liElement.appendChild(qtyManagerDiv);
+        ulElement.appendChild(liElement);
+    }
+    return ulElement;
+}
+//Crée le panier
+function basketMaker(){
+    let basketDiv = createEle('div');
+    let ulElement = liBasketMaker()
+    basketDiv.appendChild(ulElement);
+    document.getElementById('basket-content').appendChild(basketDiv);
+}
 //Crée une carte de produit.
 function cardMaker(product){
     //Création des élèments de la carte
     //carte
-    card = document.createElement('div');
-    card.className = 'card m-auto';
-    card.style = 'width: 18rem';
+    card = divMaker('card m-auto', 'width: 18rem');
     //corp de la carte
-    cardBody = document.createElement('div');
-    cardBody.className = 'card-body';
+    cardBody = divMaker('card-body',"");
     //image de la carte
     imgCard = imageMaker(`./images/${product.img}`, 'card-img-top');
     //Titre de la carte
@@ -131,9 +174,9 @@ function cardMaker(product){
     //Texte de la carte
     cardText = paragraphMaker(product.detail, 'card-text');
     //Référence et prix
-    refPriceText = paragraphMaker(`ref : ${product.ref} / Prix : ${product.price}€`, 'card-text')
+    refPriceText = paragraphMaker(`ref : ${product.ref} / Prix : ${(product.price).toFixed(2)}€`, 'card-text')
     //Bouton de la carte
-    cardBtn = buttonMaker(product.ref ,'btn btn-primary addProductBtn');
+    cardBtn = buttonMaker(product.ref ,'btn btn-primary addProductBtn', "Ajoutez au panier");
     //Ajout des élémént dans la carte
     card.appendChild(imgCard);
     cardBody.appendChild(cardTitle);
@@ -144,6 +187,13 @@ function cardMaker(product){
     productsDiv.appendChild(card);
     return card;
 }
+//Création d'une div
+function divMaker(className, style){
+    let divElement = createEle('div');
+    divElement.className = className;
+    divElement.style = style;
+    return divElement;
+}
 //Création de l'image de la carte
 function imageMaker(img, className){
     let imgElement = new Image();
@@ -153,23 +203,39 @@ function imageMaker(img, className){
 }
 //Création du titre de la carte
 function titleMaker(title, className){
-    let titleElement = document.createElement('h5');
+    let titleElement = createEle('h5');
     titleElement.className = className;
     titleElement.innerText = title;
     return titleElement;
 }
 //Création de paragraphe
 function paragraphMaker(p, className){
-    let pElement = document.createElement('p');
+    let pElement = createEle('p');
     pElement.className = className;
     pElement.innerText = p;
     return pElement
 }
-//Creation d'un bouton
-function buttonMaker(id, className){
-    let btnElement = document.createElement('button');
+//Création d'un bouton
+function buttonMaker(id, className, text){
+    let btnElement = createEle('button');
     btnElement.className = className;
     btnElement.id = id;
-    btnElement.innerHTML = "Ajoutez au panier";
+    btnElement.innerHTML = text;
     return btnElement;
+}
+//Création d'une liste
+function listMaker(className){
+    let liElement = createEle('ul');
+    liElement.className = className;
+    return liElement;
+}
+//Création d'une ligne de liste
+function listRowMaker(className){
+    let liElement = createEle('li');
+    liElement.className = className;
+    return liElement;
+}
+//Création d'un element
+function createEle(element){
+    return document.createElement(element);
 }
