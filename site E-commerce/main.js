@@ -125,7 +125,7 @@ function moreOrLessQuantity(operateur, productRef){
         if(productToModifiy.product.ref == productRef){
             if(operateur == '+'){
                 productToModifiy.quantity++;
-            }else if(operateur == '-'){
+            }else if(operateur == '-' && productToModifiy.quantity>0){
                 productToModifiy.quantity--;
             }
         }
