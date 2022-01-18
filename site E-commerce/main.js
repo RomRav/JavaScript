@@ -28,9 +28,9 @@ let croissant = {
     ref: 2
 };
 let eclaire = {
-    name: 'Eclaire au chocolat',
+    name: 'Eclair au chocolat',
     img: 'eclaire.jpg',
-    detail: 'Pâte à choux foirrée de crème au chocolat.',
+    detail: 'Pâte à choux fourrée de crème au chocolat.',
     category: 'Patisseries',
     price: 3.10,
     ref: 3
@@ -38,7 +38,7 @@ let eclaire = {
 let choux = {
     name: 'Choux à la crème',
     img: 'choux.jpg',
-    detail: 'Pâte à choux foirrée de Crème pâtissière.',
+    detail: 'Pâte à choux fourrée de Crème pâtissière.',
     category: 'Patisseries',
     price: 2,
     ref: 4
@@ -78,29 +78,37 @@ let boule = {
 let products = [baguette, campagne, macaron, choux, eclaire, croissant, painChocolat, boule];
 //Ecoute du click
 document.addEventListener('click', event =>{
+    //Affichage des produits de la catégorie PAINS.
     if(event.target.matches('.Pains'))
     {   
         selectedCategoryManager('Pains');
     }
+    //Affichage des produits de la catégorie VIENNOISERIES.
     if(event.target.matches('.Viennoiseries')){
         selectedCategoryManager('Viennoiseries');
     }
+    //Affichage des produits de la catégorie PATISSERIES.
     if(event.target.matches('.Patisseries')){
         selectedCategoryManager('Patisseries');
     }
+    //Affichage du PANIER.
     if(event.target.matches('.Panier')){
         document.getElementById('basket-content').innerHTML="";
         basketMaker();
-    }  
+    }
+    //Bouton d'AJOUT d'un produit dans le PANIER.  
     if(event.target.matches('.addProductBtn')){
         toBasket(findProduct(event.target.id));
     } 
+    //Bouton de DIMINUTION de la quantitée d'un produit dans le panier.
     if(event.target.matches('.lessBtn')){
         moreOrLessQuantity('-', event.target.id);
     }
+    //Bouton d'AUGMENTATION de la quantitée d'un produit dans le panier.
     if(event.target.matches('.moreBtn')){
         moreOrLessQuantity( '+', event.target.id);
     }
+    //Bouton pour SUPPRIMER un produit ou tous les produits du panier.
     if(event.target.matches('.empty-basket')){
         removeProductFromBasket(event.target.id);
     }
@@ -110,13 +118,14 @@ function removeProductFromBasket(id){
     if(id != undefined){
         for(let i = 0; i<basket.length;i++){
             if(basket[i].product.ref == id){
-                console.log(i);
                 basket.splice(i,1);
             }
         }
     }else{
+        
         basket = [];
     }
+    setBasket();
     basketMaker();
 }
 //incrémente ou décrement la quantité de produit dans le panier.
@@ -130,6 +139,7 @@ function moreOrLessQuantity(operateur, productRef){
             }
         }
     }
+    setBasket();
     basketMaker();
 }
 //Verifie si un produit est présent dans le panier
@@ -151,6 +161,16 @@ function toBasket(product){
         productInBasket.quantity = 1;
         basket.push(productInBasket);
     }
+    setBasket();
+}
+getBasket()
+//Récupération du panier stocké dans le local storage.
+function getBasket(){
+    basket = JSON.parse(localStorage.getItem('basket')) || [];
+}
+//Stockage du panier dans le local storage.
+function setBasket(){
+    localStorage.setItem('basket', JSON.stringify(basket));
 }
 //Trouve un produit dans la liste des produits
 function findProduct(id){
@@ -170,41 +190,55 @@ function selectedCategoryManager(category){
 }
 //Crée la liste de produits dans le panier
 function liBasketMaker(){
+    //Crée un élèment liste.
     let ulElement = listMaker('list-group');
+    //Boucel sur le contenu du panier. 
     for(productBasket of basket){
+        //Crée la ligne
         let liElement = listRowMaker('list-group-item');
+        //Le Nom du produit.
         let textElement = paragraphMaker(productBasket.product.name,  '');
+        //Div contenant la quantité et les boutons + et -.
         let qtyManagerDiv = createEle('div');
         qtyManagerDiv.className = 'd-flex';
+        //Prix unitaire
         let priceText = paragraphMaker(`Prix unitaire : ${(productBasket.product.price).toFixed(2)}€`);
+        //Prix total du produit.
         let totalProductText = paragraphMaker(`Total : ${(productBasket.product.price * productBasket.quantity).toFixed(2)}€`)
+        //Bouton + et -.
         let lessQtyBtn = buttonMaker(productBasket.product.ref, 'btn btn-danger ms-auto me-1 lessBtn', '-');
         let moreQtyBtn = buttonMaker(productBasket.product.ref, 'btn btn-success ms-1 me-1 moreBtn', '+');
+        //Quantité.
         let quantitytextElement = paragraphMaker(`Qté: ${(productBasket.quantity)}`,'text-end');
-        qtyManagerDiv.appendChild(priceText);
-        qtyManagerDiv.appendChild(lessQtyBtn);
-        qtyManagerDiv.appendChild(quantitytextElement);
-        qtyManagerDiv.appendChild(moreQtyBtn);
-        qtyManagerDiv.appendChild(totalProductText);
-        liElement.appendChild(textElement);
-        liElement.appendChild(buttonMaker(productBasket.product.ref, "empty-basket btn btn-danger" , "<i class=\"bi bi-trash-fill\"></i>"));
-        liElement.appendChild(qtyManagerDiv);
-        ulElement.appendChild(liElement);
+        //Ajout des élèments dans la div affichant la quantité et le total.
+        qtyManagerDiv.append(priceText, lessQtyBtn, quantitytextElement, moreQtyBtn, totalProductText);
+        liElement.append(
+            textElement, 
+            buttonMaker(productBasket.product.ref, "empty-basket btn btn-danger" , "<i class=\"bi bi-trash-fill\"></i>"), 
+            qtyManagerDiv);
+        ulElement.append(liElement);
     }
     return ulElement;
 }
 //Crée le panier
 function basketMaker(){
+    getBasket();
+    //Vide le panier.
     basketContent.innerHTML = '';
     basketTotal.innerHTML = '';
+    //Crée les élèments du panier.
+    //DIV
     let basketDiv = createEle('div');
+    //LISTE
     let ulElement = liBasketMaker()
-    let emptyBasket = buttonMaker("", "empty-basket btn btn-danger" , "<i class=\"bi bi-trash-fill\"></i>")
-    basketDiv.appendChild(ulElement);
-    basketContent.appendChild(basketDiv);
+    //BOUTON SUPPRIMER
+    let emptyBasket = buttonMaker("", "empty-basket btn btn-danger" , "<i class=\"bi bi-trash-fill\"></i>");
+    //Ajout des élèments dans le panier.
+    basketDiv.append(ulElement);
+    basketContent.append(basketDiv);
+    //Calcule du total du panier.
     basketAmount();
-    basketTotal.appendChild(emptyBasket);
-    basketTotal.appendChild(paragraphMaker(`Total : ${(amount).toFixed(2)}€`));
+    basketTotal.append(emptyBasket, paragraphMaker(`Total : ${(amount).toFixed(2)}€`));
 }
 //Calcule du montant du panier
 function basketAmount(){
@@ -217,7 +251,7 @@ function basketAmount(){
 function cardMaker(product){
     //Création des élèments de la carte
     //carte
-    card = divMaker('card m-auto', 'width: 18rem');
+    card = divMaker('card m-auto ', 'width: 18rem');
     //corp de la carte
     cardBody = divMaker('card-body',"");
     //image de la carte
@@ -231,14 +265,10 @@ function cardMaker(product){
     //Bouton de la carte
     cardBtn = buttonMaker(product.ref ,'btn btn-primary addProductBtn', "Ajoutez au panier");
     //Ajout des élémént dans la carte
-    card.appendChild(imgCard);
-    cardBody.appendChild(cardTitle);
-    cardBody.appendChild(cardText);
-    cardBody.appendChild(refPriceText);
-    cardBody.appendChild(cardBtn);
-    card.appendChild(cardBody);
-    productsDiv.appendChild(card);
-    return card;
+    card.append(imgCard);
+    cardBody.append(cardTitle, cardText, refPriceText, cardBtn);
+    card.append(cardBody);
+    productsDiv.append(card);
 }
 //Création d'une div
 function divMaker(className, style){
